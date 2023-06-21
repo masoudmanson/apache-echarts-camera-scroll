@@ -105,7 +105,6 @@ export const {
   setColor,
   setSymbol,
   setEmphasis,
-  setAxisLeft,
   setGeneNames,
   setHeatmapCanvasSize,
 } = dataSlice.actions;

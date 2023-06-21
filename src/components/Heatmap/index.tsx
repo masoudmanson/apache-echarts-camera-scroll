@@ -7,16 +7,23 @@ import {
   interpolateSpectral,
 } from "d3-scale-chromatic";
 import ReactECharts from "echarts-for-react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { RootState } from "../../store";
 import { StyledHeatmapWrapper } from "./style";
-import React, { LegacyRef, useEffect, useRef, useState } from "react";
+import React, {
+  LegacyRef,
+  MutableRefObject,
+  Ref,
+  RefCallback,
+  useEffect,
+  useRef,
+} from "react";
 import GeneListGenerator from "../../helpers/geneListGenerator";
 import { XAxisWrapper } from "../XAxisChart/style";
 import XAxisChart from "../XAxisChart";
 import { ITEM_COUNT } from "../XAxisChart/utils";
-import { setData, setGeneNames } from "../../store/dataReducer";
 import EChartsReact from "echarts-for-react";
+import { EChartsOption, EChartsType } from "echarts";
 
 type InterpolatorNames =
   | "Magma"
@@ -37,12 +44,34 @@ const INTERPOLATORS: Interpolator = {
   YlOrRd: interpolateYlOrRd,
 };
 
+type MutableRefList<T> = Array<
+  RefCallback<T> | MutableRefObject<T> | undefined | null
+>;
+
+export function mergeRefs<T>(...refs: MutableRefList<T>): RefCallback<T> {
+  return (val: T) => {
+    setRef(val, ...refs);
+  };
+}
+
+export function setRef<T>(val: T, ...refs: MutableRefList<T>): void {
+  refs.forEach((ref) => {
+    if (typeof ref === "function") {
+      ref(val);
+    } else if (ref != null) {
+      ref.current = val;
+    }
+  });
+}
+
 interface EChartsProps {
   onXAxisChange?: (start: number, end: number) => void;
 }
 
 const ECharts = React.forwardRef(
-  (props: EChartsProps, ref: LegacyRef<EChartsReact>) => {
+  (props: EChartsProps, ref: Ref<EChartsReact>) => {
+    console.log({ ref });
+
     const { onXAxisChange } = props;
     const clickedItem = useRef<number>(-1);
 
@@ -164,9 +193,17 @@ const ECharts = React.forwardRef(
       ],
     };
 
+    const myRef = useRef<EChartsReact | null>(null);
+
+    useEffect(() => {
+      console.log("ref changes", ref);
+    }, [ref]);
+
     return (
       <ReactECharts
-        ref={ref}
+        ref={mergeRefs(ref, (callbackRef) => {
+          myRef.current = callbackRef;
+        })}
         option={options}
         opts={{
           renderer: "svg",
@@ -179,32 +216,37 @@ const ECharts = React.forwardRef(
             onXAxisChange?.(evt.batch[0].start, evt.batch[0].end);
 
             //Downplay all items on camera scroll
-            const echartInstance = ref?.current?.getEchartsInstance();
-            echartInstance.dispatchAction({
-              type: "downplay",
-              seriesIndex: 0,
-            });
+            const echartInstance = myRef?.current?.getEchartsInstance();
+            echartInstance &&
+              echartInstance.dispatchAction({
+                type: "downplay",
+                seriesIndex: 0,
+              });
           },
           click: function (params: any) {
-            const echartInstance = ref?.current?.getEchartsInstance();
+            const echartInstance = myRef?.current?.getEchartsInstance() as any;
 
             if (params.event.target) {
               // Downplay all items when clicked on the same item again
               if (params.dataIndex === clickedItem.current) {
-                echartInstance.dispatchAction({
-                  type: "downplay",
-                  seriesIndex: 0,
-                });
+                echartInstance &&
+                  echartInstance.dispatchAction({
+                    type: "downplay",
+                    seriesIndex: 0,
+                  });
                 clickedItem.current = -1;
               } else {
                 clickedItem.current = params.dataIndex;
 
                 if (params.targetType === "axisLabel") {
-                  echartInstance.dispatchAction({
-                    type: "highlight",
-                    seriesIndex: [0],
-                  });
-                  const data = echartInstance.getOption().series[0].data;
+                  echartInstance &&
+                    echartInstance.dispatchAction({
+                      type: "highlight",
+                      seriesIndex: [0],
+                    });
+                  const data = echartInstance
+                    ? echartInstance.getOption().series[0].data
+                    : [];
                   const dataIndex = data
                     .map(([xData, yData, value]: any, idx: any) =>
                       params.dataIndex ===
@@ -215,17 +257,19 @@ const ECharts = React.forwardRef(
                     )
                     .filter((v: null) => v !== null);
 
-                  echartInstance.dispatchAction({
-                    type: "downplay",
-                    seriesIndex: 0,
-                    dataIndex,
-                  });
+                  echartInstance &&
+                    echartInstance.dispatchAction({
+                      type: "downplay",
+                      seriesIndex: 0,
+                      dataIndex,
+                    });
                 } else {
                   //Highligh the whole heatmap first
-                  echartInstance.dispatchAction({
-                    type: "highlight",
-                    seriesIndex: params.seriesIndex,
-                  });
+                  echartInstance &&
+                    echartInstance.dispatchAction({
+                      type: "highlight",
+                      seriesIndex: params.seriesIndex,
+                    });
 
                   //Downplay based on the Emphasis type
                   const seriesIndex = params.seriesIndex,
@@ -283,9 +327,8 @@ const ECharts = React.forwardRef(
 );
 
 const Heatmap: React.FC = (props) => {
-  const dispatch = useDispatch();
   const clickedLabel = useRef<number>(-1);
-  const chartRef = useRef(null);
+  const chartRef = useRef<EChartsReact | null>(null);
   const XAxisChartRef = useRef<HTMLDivElement | null>(null);
   const geneNames = useSelector(
     (state: RootState) => state.dataReducer.geneNames
@@ -295,11 +338,15 @@ const Heatmap: React.FC = (props) => {
     (state: RootState) => state.dataReducer.heatmapCanvasSize
   );
 
+  useEffect(() => {
+    console.log({ chartRef });
+  }, [chartRef]);
+
   return (
     <StyledHeatmapWrapper>
       <h3>Heatmap</h3>
       <ECharts
-        ref={chartRef}
+        ref={(ref) => (chartRef.current = ref)}
         onXAxisChange={(start, end) => {
           const heatmapFullWidth =
             (heatmapCanvasSize.width / (ITEM_COUNT * 2)) * size;
@@ -325,33 +372,37 @@ const Heatmap: React.FC = (props) => {
           ref={XAxisChartRef}
           geneNames={geneNames}
           labelClicked={(label) => {
-            const echartInstance = chartRef?.current?.getEchartsInstance();
-            if (label.index === clickedLabel.current) {
-              echartInstance.dispatchAction({
-                type: "downplay",
-                seriesIndex: 0,
-              });
-              clickedLabel.current = -1;
-            } else {
-              clickedLabel.current = label.index;
+            if (chartRef && chartRef.current) {
+              const echartInstance =
+                chartRef.current.getEchartsInstance() as any;
+              if (label.index === clickedLabel.current) {
+                echartInstance.dispatchAction({
+                  type: "downplay",
+                  seriesIndex: 0,
+                });
+                clickedLabel.current = -1;
+              } else {
+                clickedLabel.current = label.index;
 
-              echartInstance.dispatchAction({
-                type: "highlight",
-                seriesIndex: [0],
-              });
+                echartInstance.dispatchAction({
+                  type: "highlight",
+                  seriesIndex: [0],
+                });
 
-              const data = echartInstance.getOption().series[0].data;
-              const dataIndex = data
-                .map(([xData, yData, value]: any, idx: any) =>
-                  label.index === xData && Number.isFinite(value) ? idx : null
-                )
-                .filter((v: null) => v !== null);
+                const series = echartInstance.getOption().series;
+                const data = series[0].data;
+                const dataIndex = data
+                  .map(([xData, yData, value]: any, idx: any) =>
+                    label.index === xData && Number.isFinite(value) ? idx : null
+                  )
+                  .filter((v: null) => v !== null);
 
-              echartInstance.dispatchAction({
-                type: "downplay",
-                seriesIndex: 0,
-                dataIndex,
-              });
+                echartInstance.dispatchAction({
+                  type: "downplay",
+                  seriesIndex: 0,
+                  dataIndex,
+                });
+              }
             }
           }}
           left={0}
