@@ -198,6 +198,7 @@ const ControlPanel: React.FC = () => {
           label="SHIFT"
           sdsStyle="square"
           sdsType="primary"
+          hover={false}
           style={{ marginTop: 5 }}
         />{" "}
         key!
