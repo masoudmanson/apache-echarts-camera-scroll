@@ -69,7 +69,7 @@ function GeneButton({
 }
 
 export interface XAxisRefType {
-  changeActiveLabel: (label: number) => void;
+  changeActiveLabel: (label: number | null) => void;
   getWrapperRef: () => React.RefObject<HTMLDivElement | null>;
 }
 
@@ -86,7 +86,7 @@ const XAxisChart = forwardRef(
 
     useImperativeHandle(ref, () => {
       return {
-        changeActiveLabel(label: number) {
+        changeActiveLabel(label) {
           setActiveGene(label);
         },
         getWrapperRef() {

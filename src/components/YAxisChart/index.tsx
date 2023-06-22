@@ -67,7 +67,7 @@ function GeneButton({
 }
 
 export interface YAxisRefType {
-  changeActiveLabel: (label: number) => void;
+  changeActiveLabel: (label: number | null) => void;
   getWrapperRef: () => React.RefObject<HTMLDivElement | null>;
 }
 
@@ -84,7 +84,7 @@ const YAxisChart = forwardRef(
 
     useImperativeHandle(ref, () => {
       return {
-        changeActiveLabel(label: number) {
+        changeActiveLabel(label) {
           setActiveGene(label);
         },
         getWrapperRef() {

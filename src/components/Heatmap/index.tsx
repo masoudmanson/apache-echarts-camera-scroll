@@ -483,6 +483,9 @@ const Heatmap: React.FC = (props) => {
     (state: RootState) => state.dataReducer.geneNames
   );
   const size = useSelector((state: RootState) => state.dataReducer.size);
+  const emphasis = useSelector(
+    (state: RootState) => state.dataReducer.emphasis
+  );
   const heatmapCanvasSize = useSelector(
     (state: RootState) => state.dataReducer.heatmapCanvasSize
   );
@@ -562,12 +565,18 @@ const Heatmap: React.FC = (props) => {
           yAxisLabelRef={clickedLabelY}
           ref={(ref) => (chartRef.current = ref)}
           onItemClicked={(item) => {
-            if (XAxisChartRef.current) {
-              XAxisChartRef.current.changeActiveLabel(item[0]);
+            if (XAxisChartRef.current && YAxisChartRef.current) {
+              if (!item.length) {
+                XAxisChartRef.current.changeActiveLabel(null);
+                YAxisChartRef.current.changeActiveLabel(null);
+              }
+
+              emphasis !== "Row" &&
+                XAxisChartRef.current.changeActiveLabel(item[0]);
+              emphasis !== "Column" &&
+                YAxisChartRef.current.changeActiveLabel(item[1]);
             }
-            if (YAxisChartRef.current) {
-              YAxisChartRef.current.changeActiveLabel(item[1]);
-            }
+
             clickedLabelX.current = item[0];
             clickedLabelY.current = item[1];
           }}
