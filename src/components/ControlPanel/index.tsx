@@ -28,10 +28,13 @@ const OPTIONS = [
 ];
 
 const SIZES: DefaultDropdownMenuOption[] = [
-  { name: "10,000", count: 100 },
-  { name: "250,000", count: 500 },
-  { name: "1,000,000", count: 1000 },
-  { name: "2,250,000", count: 1500 },
+  { name: "10,000", details: "100 x 100" },
+  { name: "62,500", details: "250 x 250" },
+  { name: "250,000", details: "500 x 500" },
+  { name: "562,500", details: "750 x 750" },
+  { name: "1,000,000", details: "1000 x 1000" },
+  { name: "1,562,500", details: "1250 x 1250" },
+  { name: "2,250,000", details: "1500 x 1500" },
 ];
 
 const TYPES = [
@@ -104,12 +107,12 @@ const ControlPanel: React.FC = () => {
           label={color}
           options={OPTIONS}
           onChange={changeInterpolator}
+          search
           InputDropdownProps={{
             sdsType: "singleSelect",
             sdsStyle: "minimal",
           }}
           DropdownMenuProps={{
-            title: "Heatmap Color",
             PopperBaseProps: {
               sx: { width: 220 },
             },
@@ -120,7 +123,7 @@ const ControlPanel: React.FC = () => {
 
         <StyledLabel>HEATMAP SIZE</StyledLabel>
         <Dropdown
-          label={size}
+          label={`${size} x ${size}`}
           options={SIZES}
           onChange={changeHeatmapSize}
           InputDropdownProps={{
@@ -189,7 +192,7 @@ const ControlPanel: React.FC = () => {
         dismissed={false}
         style={{
           width: "unset",
-          margin: 0
+          margin: 0,
         }}
       >
         To scroll horizontally, hold down the{" "}
@@ -211,7 +214,9 @@ const ControlPanel: React.FC = () => {
   }
 
   function changeHeatmapSize(size: DefaultDropdownMenuOption | null) {
-    size && size.count && dispatch(setSize(size.count));
+    size &&
+      size.name &&
+      dispatch(setSize(Math.sqrt(parseInt(size.name.split(",").join("")))));
   }
 
   function changeHeatmapType(type: DefaultDropdownMenuOption | null) {
