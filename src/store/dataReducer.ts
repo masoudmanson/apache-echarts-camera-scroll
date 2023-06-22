@@ -20,13 +20,13 @@ export interface DataState {
 }
 
 const initialState: DataState = {
-  data: generateData("Perlin Noise", 100),
-  size: 100,
+  data: generateData("Perlin Noise", 250),
+  size: 250,
   type: "Perlin Noise",
   symbol: "Rect",
   color: "Magma",
   emphasis: "Cross",
-  geneNames: GeneListGenerator(100),
+  geneNames: GeneListGenerator(250),
   heatmapCanvasSize: {
     width: HEATMAP_ITEM_SIZE * (X_ITEM_COUNT + 1),
     height: HEATMAP_ITEM_SIZE * (Y_ITEM_COUNT + 1),
