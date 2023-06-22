@@ -109,6 +109,8 @@ const ECharts = React.memo(
 
       //Reset yAxis on each chart re-renders
       onAxisChange?.(0, 100, "vertical");
+
+      onItemClicked?.([]);
     }, [data, size, color, emphasis, symbol]);
 
     const xAxisLabelNames = GeneListGenerator(size).map((d) => d.name);
@@ -428,8 +430,7 @@ const ECharts = React.memo(
                   });
 
                 //Downplay based on the Emphasis type
-                const seriesIndex = params.seriesIndex,
-                  data = echartInstance.getOption().series[seriesIndex].data;
+                const seriesIndex = params.seriesIndex;
                 const [x, y] = params.data;
                 let dataIndex = [];
 
