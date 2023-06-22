@@ -192,13 +192,13 @@ const ControlPanel: React.FC = () => {
           margin: 0
         }}
       >
-        To scroll horizontally hold down {" "}
+        To scroll horizontally, hold down the{" "}
         <Tag
           color="gray"
           label="SHIFT"
           sdsStyle="square"
-          sdsType="secondary"
-          style={{ marginTop: 4 }}
+          sdsType="primary"
+          style={{ marginTop: 5 }}
         />{" "}
         key!
       </Callout>
