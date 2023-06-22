@@ -2,6 +2,11 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { createNoise2D } from "simplex-noise";
 import { Gene } from "../components/XAxisChart";
 import GeneListGenerator from "../helpers/geneListGenerator";
+import {
+  HEATMAP_ITEM_SIZE,
+  X_ITEM_COUNT,
+  Y_ITEM_COUNT,
+} from "../components/utils";
 
 export interface DataState {
   data: (number | string)[][];
@@ -22,27 +27,22 @@ const initialState: DataState = {
   color: "Magma",
   emphasis: "Cross",
   geneNames: GeneListGenerator(100),
-  heatmapCanvasSize: { width: 1040, height: 520 },
+  heatmapCanvasSize: {
+    width: HEATMAP_ITEM_SIZE * (X_ITEM_COUNT + 1),
+    height: HEATMAP_ITEM_SIZE * (Y_ITEM_COUNT + 1),
+  },
 };
 
 function generateData(type: string, size: number) {
   switch (type) {
     case "Sequential":
       return Array.from({ length: size }, (_, i) =>
-        Array.from({ length: size }, (_, j) => [
-          i,
-          j,
-          (i + j) / (2 * size)
-        ])
+        Array.from({ length: size }, (_, j) => [i, j, (i + j) / (2 * size)])
       ).flat();
 
     case "Random":
       return Array.from({ length: size }, (_, i) =>
-        Array.from({ length: size }, (_, j) => [
-          i,
-          j,
-          Math.random()
-        ])
+        Array.from({ length: size }, (_, j) => [i, j, Math.random()])
       ).flat();
 
     case "Perlin noise":
@@ -54,7 +54,7 @@ function generateData(type: string, size: number) {
         Array.from({ length: size }, (_, j) => [
           i,
           j,
-          ((noise2D(i / noiseSeed, j / noiseSeed) + 1) * 0.5)
+          (noise2D(i / noiseSeed, j / noiseSeed) + 1) * 0.5,
         ])
       ).flat();
     }

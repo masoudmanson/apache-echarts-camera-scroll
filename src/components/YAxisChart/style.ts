@@ -8,66 +8,64 @@ import {
   ECHART_AXIS_LABEL_FONT_SIZE_PX,
 } from "../utils";
 
-interface XAxisWrapperProps {
+interface YAxisWrapperProps {
   height: number;
   width: number;
-  left: number;
+  bottom: number;
 }
 
-export const XAxisWrapper = styled.div<XAxisWrapperProps>`
-  ${xAxisWidthAndOffset}
+export const YAxisWrapper = styled.div<YAxisWrapperProps>`
+  ${yAxisWidthAndOffset}
   background-color: white;
   height: ${(props) => props.height}px;
   position: absolute;
   overflow: hidden;
   z-index: 2;
-  border-top: solid 1px #666;
+  border-right: solid 1px #666;
 `;
 
-interface XAxisContainerProps {
+interface YAxisContainerProps {
   height: number;
   width: number;
 }
 
-export const XAxisContainer = styled.div<XAxisContainerProps>`
-  ${xAxisWidth}
+export const YAxisContainer = styled.div<YAxisContainerProps>`
+  ${yAxisWidth}
   background-color: white;
   height: ${(props) => props.height}px;
-  top: 0px;
+  left: 0px;
   position: absolute;
   display: flex;
-  flex-direction: row;
+  flex-direction: column-reverse;
   justify-content: space-between;
 `;
 
-export const XAxisLabel = styled.div`
+export const YAxisLabel = styled.div`
   ${() => {
     const heatmapCanvasSize = useSelector(
       (state: RootState) => state.dataReducer.heatmapCanvasSize
     );
     return `
-    height: 100%;
-    width: ${heatmapCanvasSize.width / X_ITEM_COUNT}px;
-    writing-mode: vertical-lr;
+    height: ${heatmapCanvasSize.height / Y_ITEM_COUNT}px;
+    width: 100%;
     color: ${ECHART_AXIS_LABEL_COLOR_HEX};
     display: flex;
-    justify-content: start;
+    justify-content: end;
     align-items: center;
-    padding-top: 25px;
+    padding-right: 25px;
     &::before {
         content: "";
         position: absolute;
-        width: 1px;
-        height: 5px;
+        height: 1px;
+        width: 5px;
         background-color: #666;
-        margin-left: -25px;
-        top: 0;
+        margin-top: 25px;
+        right: 0;
     }`;
   }}
 `;
 
-export const XAxisGeneName = styled.span`
-  transform: scale(-1, -1);
+export const YAxisGeneName = styled.span`
   ${selectedStyle}
 `;
 
@@ -98,7 +96,7 @@ export const GeneButtonStyle = styled.div<GeneButtonProps>`
         display: inline-flex;
         justify-content: space-between;
         white-space: nowrap;
-        flex-direction: column;
+        flex-direction: row;
         align-items: center;
 
         &:hover {
@@ -112,10 +110,11 @@ export const GeneButtonStyle = styled.div<GeneButtonProps>`
 
 export const HoverContainer = styled.div`
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   opacity: 0.1;
   position: absolute;
-  top: 0;
+  right: 0;
+  padding-right: 8px;
   z-index: 3;
 `;
 
@@ -136,14 +135,20 @@ export const CellCountLabel = styled.div`
   }}
 `;
 
-function xAxisWidthAndOffset({ width, left }: { width: number; left: number }) {
+function yAxisWidthAndOffset({
+  width,
+  bottom,
+}: {
+  width: number;
+  bottom: number;
+}) {
   return `
     width: ${width}px;
-    left: ${left}px;
+    bottom: ${bottom}px;
   `;
 }
 
-function xAxisWidth({ width }: { width: number }) {
+function yAxisWidth({ width }: { width: number }) {
   return `
     width: ${width}px;
   `;
@@ -167,7 +172,7 @@ function activeStyle() {
         color: black;
         font-weight: 600;
     }
-    .x-axis-hover-container {
+    .y-axis-hover-container {
       opacity: 1;
     }`;
 }

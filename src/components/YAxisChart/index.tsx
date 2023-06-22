@@ -1,19 +1,13 @@
+import { forwardRef, useImperativeHandle, useRef, useState } from "react";
 import {
-  RefObject,
-  forwardRef,
-  useImperativeHandle,
-  useRef,
-  useState,
-} from "react";
-import {
-  XAxisContainer,
-  XAxisLabel,
+  YAxisContainer,
+  YAxisLabel,
   GeneButtonStyle,
-  XAxisGeneName,
+  YAxisGeneName,
   InfoButtonWrapper,
   HoverContainer,
 } from "./style";
-import { SELECTED_STYLE, X_AXIS_WIDTH, formatLabel } from "../utils";
+import { SELECTED_STYLE, Y_AXIS_WIDTH, formatLabel } from "../utils";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store";
 
@@ -21,6 +15,7 @@ export interface Gene {
   name: string;
   index: number;
 }
+
 interface Props {
   geneNames: Gene[];
   labelClicked: (gene: Gene) => void;
@@ -40,13 +35,13 @@ function GeneButton({
 }): JSX.Element {
   const { name: geneName, index: geneIndex } = gene;
   const currentFont = `
-    normal
-    ${active ? SELECTED_STYLE.fontWeight : "normal"}
-    ${SELECTED_STYLE.fontSize}px ${SELECTED_STYLE.fontFamily}
-  `;
+      normal
+      ${active ? SELECTED_STYLE.fontWeight : "normal"}
+      ${SELECTED_STYLE.fontSize}px ${SELECTED_STYLE.fontFamily}
+    `;
   const { text: formattedLabel, length } = formatLabel(
     `${geneName}`,
-    X_AXIS_WIDTH - 30, // Gene label length is capped to this value
+    Y_AXIS_WIDTH - 40, // Gene label length is capped to this value
     currentFont
   );
 
@@ -58,25 +53,28 @@ function GeneButton({
       }}
       active={active}
     >
-      <HoverContainer className="x-axis-hover-container" id={GENE_LABEL_HOVER_CONTAINER_ID}>
+      <HoverContainer
+        className="y-axis-hover-container"
+        id={GENE_LABEL_HOVER_CONTAINER_ID}
+      >
         <InfoButtonWrapper>{geneIndex}</InfoButtonWrapper>
       </HoverContainer>
-      <XAxisLabel className={"gene-label-container"}>
-        <XAxisGeneName font={currentFont}>{formattedLabel}</XAxisGeneName>
-      </XAxisLabel>
+      <YAxisLabel className={"gene-label-container"}>
+        <YAxisGeneName font={currentFont}>{formattedLabel}</YAxisGeneName>
+      </YAxisLabel>
     </GeneButtonStyle>
   );
 }
 
-export interface XAxisRefType {
+export interface YAxisRefType {
   changeActiveLabel: (label: number) => void;
   getWrapperRef: () => React.RefObject<HTMLDivElement | null>;
 }
 
-const XAxisChart = forwardRef(
+const YAxisChart = forwardRef(
   (
     { geneNames, labelClicked }: Props,
-    ref: React.Ref<XAxisRefType>
+    ref: React.Ref<YAxisRefType>
   ): JSX.Element => {
     const heatmapCanvasSize = useSelector(
       (state: RootState) => state.dataReducer.heatmapCanvasSize
@@ -98,10 +96,10 @@ const XAxisChart = forwardRef(
     const [activeGene, setActiveGene] = useState<number | null>(null);
 
     return (
-      <XAxisContainer
+      <YAxisContainer
         className="gene-labels"
-        width={heatmapCanvasSize.width}
-        height={X_AXIS_WIDTH}
+        width={Y_AXIS_WIDTH}
+        height={heatmapCanvasSize.width}
         ref={wrapperRef}
       >
         {geneNames.map((gene) => (
@@ -120,9 +118,9 @@ const XAxisChart = forwardRef(
             }}
           />
         ))}
-      </XAxisContainer>
+      </YAxisContainer>
     );
   }
 );
 
-export default XAxisChart;
+export default YAxisChart;

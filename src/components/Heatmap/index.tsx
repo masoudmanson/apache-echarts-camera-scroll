@@ -9,21 +9,29 @@ import {
 import ReactECharts from "echarts-for-react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store";
-import { StyledHeatmapWrapper } from "./style";
+import { StyledContainer, StyledHeatmapWrapper } from "./style";
 import React, {
-  LegacyRef,
   MutableRefObject,
   Ref,
   RefCallback,
+  RefObject,
   useEffect,
   useRef,
+  useState,
 } from "react";
 import GeneListGenerator from "../../helpers/geneListGenerator";
 import { XAxisWrapper } from "../XAxisChart/style";
-import XAxisChart from "../XAxisChart";
-import { ITEM_COUNT } from "../XAxisChart/utils";
+import XAxisChart, { XAxisRefType } from "../XAxisChart";
+import {
+  Y_ITEM_COUNT,
+  X_ITEM_COUNT,
+  X_AXIS_WIDTH,
+  Y_AXIS_WIDTH,
+  HEATMAP_ITEM_SIZE,
+} from "../utils";
 import EChartsReact from "echarts-for-react";
-import { EChartsOption, EChartsType } from "echarts";
+import YAxisChart, { YAxisRefType } from "../YAxisChart";
+import { YAxisWrapper } from "../YAxisChart/style";
 
 type InterpolatorNames =
   | "Magma"
@@ -65,15 +73,22 @@ export function setRef<T>(val: T, ...refs: MutableRefList<T>): void {
 }
 
 interface EChartsProps {
-  onXAxisChange?: (start: number, end: number) => void;
+  xAxisLabelRef: RefObject<number>;
+  yAxisLabelRef: RefObject<number>;
+  onAxisChange?: (
+    start: number,
+    end: number,
+    dir: "horizontal" | "vertical"
+  ) => void;
+  onItemClicked?: (item: number[]) => void;
 }
 
-const ECharts = React.forwardRef(
-  (props: EChartsProps, ref: Ref<EChartsReact>) => {
-    console.log({ ref });
+const ECharts = React.memo(
+  React.forwardRef((props: EChartsProps, ref: Ref<EChartsReact>) => {
+    const { onAxisChange, onItemClicked, xAxisLabelRef, yAxisLabelRef } = props;
 
-    const { onXAxisChange } = props;
     const clickedItem = useRef<number>(-1);
+    const myRef = useRef<EChartsReact | null>(null);
 
     const data = useSelector((state: RootState) => state.dataReducer.data);
     const size = useSelector((state: RootState) => state.dataReducer.size);
@@ -89,19 +104,31 @@ const ECharts = React.forwardRef(
     const values = [...Array(size).keys()];
 
     useEffect(() => {
-      //Reset xAxis on each char tre-renders
-      onXAxisChange?.(0, 100);
+      //Reset xAxis on each chart re-renders
+      onAxisChange?.(0, 100, "horizontal");
+
+      //Reset yAxis on each chart re-renders
+      onAxisChange?.(0, 100, "vertical");
     }, [data, size, color, emphasis, symbol]);
+
+    const xAxisLabelNames = GeneListGenerator(size).map((d) => d.name);
+    const yAxisLabelNames = GeneListGenerator(size).map((d) => d.name);
 
     const options = {
       // no animation, since it feels very distracting
       animation: false,
       tooltip: {
-        valueFormatter: (value: any[]) => value[2].toFixed(4),
+        formatter: function (param: any) {
+          return [
+            `X-Axis: <strong>${xAxisLabelNames[param.data[0]]}</strong><br/>`,
+            `Y-Axis: <strong>${
+              yAxisLabelNames[param.data[1]]
+            }</strong><br/><br/>`,
+            `${param.marker} <strong>${param.value[2].toFixed(6)}</strong>`,
+          ].join("");
+        },
       },
       grid: {
-        // top: CHART_TOP_PADDING + "px",
-        // left: CHART_LEFT_PADDING + "px",
         left: 0,
         right: 0,
         top: 0,
@@ -112,13 +139,14 @@ const ECharts = React.forwardRef(
           // start index of the x axis window
           startValue: 0,
           // // end index of the x axis window
-          endValue: ITEM_COUNT * 2 - 1,
-          maxValueSpan: ITEM_COUNT * 2,
+          endValue: X_ITEM_COUNT - 1,
+          maxValueSpan: X_ITEM_COUNT,
           type: "inside",
           zoomOnMouseWheel: false,
           // There's a PR to allow touchpad panning
           // https://github.com/apache/echarts/pull/17288
-          moveOnMouseWheel: true,
+          moveOnMouseWheel: false,
+          moveOnMouseMove: false,
           filterMode: "filter",
           throttle: 0,
           preventDefaultMouseMove: true,
@@ -126,16 +154,16 @@ const ECharts = React.forwardRef(
         },
         {
           // start index of the y axis window
-          startValue: ITEM_COUNT - 1,
+          startValue: Y_ITEM_COUNT - 1,
           // end index of the y axis window
           endValue: 0,
           type: "inside",
           zoomOnMouseWheel: false,
-          moveOnMouseWheel: false,
+          moveOnMouseWheel: true,
           moveOnMouseMove: false,
           yAxisIndex: 0,
           filterMode: "filter",
-          maxValueSpan: ITEM_COUNT,
+          maxValueSpan: Y_ITEM_COUNT,
           throttle: 0,
           preventDefaultMouseMove: true,
           orient: "vertical",
@@ -144,23 +172,17 @@ const ECharts = React.forwardRef(
       xAxis: {
         show: false,
         type: "category",
-        data: GeneListGenerator(size).map((d) => d.name),
-        triggerEvent: true,
-        axisLabel: {
-          rotate: 90,
-        },
+        data: xAxisLabelNames,
       },
       yAxis: {
         show: false,
         type: "category",
-        data: values,
-        triggerEvent: false,
+        data: yAxisLabelNames,
       },
       series: [
         {
           name: "SDS Heatmap",
           data: data,
-          progressive: 2 * Math.pow(ITEM_COUNT - 1, 2),
           type: "scatter",
           clip: true,
           itemStyle: {
@@ -176,10 +198,10 @@ const ECharts = React.forwardRef(
           symbolSize: function (props: number[]) {
             switch (symbol) {
               case "Circle":
-                return props[2] * 25;
+                return props[2] * HEATMAP_ITEM_SIZE;
               case "Rect":
               default: {
-                return 25;
+                return HEATMAP_ITEM_SIZE;
               }
             }
           },
@@ -193,11 +215,50 @@ const ECharts = React.forwardRef(
       ],
     };
 
-    const myRef = useRef<EChartsReact | null>(null);
+    const shiftHeld = useRef<boolean>(false);
+
+    function downHandler({ key }: KeyboardEvent) {
+      if (key === "Shift") {
+        shiftHeld.current = true;
+        const echartInstance = myRef?.current?.getEchartsInstance();
+        echartInstance?.setOption({
+          dataZoom: [
+            {
+              moveOnMouseWheel: true,
+            },
+            {
+              moveOnMouseWheel: false,
+            },
+          ],
+        });
+      }
+    }
+
+    function upHandler({ key }: KeyboardEvent) {
+      if (key === "Shift") {
+        shiftHeld.current = false;
+        const echartInstance = myRef?.current?.getEchartsInstance();
+        echartInstance?.setOption({
+          dataZoom: [
+            {
+              moveOnMouseWheel: false,
+            },
+            {
+              moveOnMouseWheel: true,
+            },
+          ],
+        });
+      }
+    }
 
     useEffect(() => {
-      console.log("ref changes", ref);
-    }, [ref]);
+      window.addEventListener("keydown", downHandler);
+      window.addEventListener("keyup", upHandler);
+      return () => {
+        window.removeEventListener("keydown", downHandler);
+        window.removeEventListener("keyup", upHandler);
+      };
+    }, []);
 
     return (
       <ReactECharts
@@ -212,16 +273,134 @@ const ECharts = React.forwardRef(
         }}
         onEvents={{
           dataZoom: function (evt: any) {
-            // dispatch(setAxisLeft(Math.floor(evt.batch[0].start)));
-            onXAxisChange?.(evt.batch[0].start, evt.batch[0].end);
+            const echartInstance = myRef?.current?.getEchartsInstance();
+
+            if (evt.batch.length > 1) {
+              const { start: xStart, end: xEnd } = evt.batch[0];
+              const { start: yStart, end: yEnd } = evt.batch[1];
+              onAxisChange?.(yStart, yEnd, "vertical");
+              onAxisChange?.(xStart, xEnd, "horizontal");
+            } else if (shiftHeld.current) {
+              const { start, end } = evt.batch[0];
+              onAxisChange?.(start, end, "horizontal");
+            } else {
+              const { start, end } = evt.batch[0];
+              onAxisChange?.(start, end, "vertical");
+            }
 
             //Downplay all items on camera scroll
-            const echartInstance = myRef?.current?.getEchartsInstance();
             echartInstance &&
               echartInstance.dispatchAction({
                 type: "downplay",
                 seriesIndex: 0,
               });
+
+            // Preserve Highlighted row + column based on emphasis type during scroll
+            if (
+              xAxisLabelRef?.current &&
+              xAxisLabelRef?.current > -1 &&
+              yAxisLabelRef?.current &&
+              yAxisLabelRef?.current > -1
+            ) {
+              echartInstance &&
+                echartInstance.dispatchAction({
+                  type: "highlight",
+                  seriesIndex: [0],
+                });
+
+              const data = echartInstance
+                ? (echartInstance.getOption().series as any)[0].data
+                : [];
+
+              let dataIndex = [];
+
+              switch (emphasis) {
+                case "Item":
+                  dataIndex.push(
+                    xAxisLabelRef?.current * size + yAxisLabelRef?.current
+                  );
+                  break;
+
+                case "Row":
+                  for (let i = 0; i < size; i++) {
+                    dataIndex.push(i * size + yAxisLabelRef?.current);
+                  }
+
+                  break;
+
+                case "Column":
+                  for (let i = 0; i < size; i++) {
+                    dataIndex.push(xAxisLabelRef?.current * size + i);
+                  }
+
+                  break;
+
+                case "Cross":
+                default:
+                  for (let i = 0; i < size; i++) {
+                    dataIndex.push(
+                      i * size + yAxisLabelRef?.current,
+                      xAxisLabelRef?.current * size + i
+                    );
+                  }
+              }
+
+              echartInstance &&
+                echartInstance.dispatchAction({
+                  type: "downplay",
+                  seriesIndex: 0,
+                  dataIndex,
+                });
+            }
+            // Preserve Highlighted row during scroll
+            else if (yAxisLabelRef?.current && yAxisLabelRef?.current > -1) {
+              echartInstance &&
+                echartInstance.dispatchAction({
+                  type: "highlight",
+                  seriesIndex: [0],
+                });
+
+              const data = echartInstance
+                ? (echartInstance.getOption().series as any)[0].data
+                : [];
+              let dataIndex = [];
+
+              for (let i = 0; i < size; i++) {
+                dataIndex.push(i * size + yAxisLabelRef?.current);
+              }
+
+              echartInstance &&
+                echartInstance.dispatchAction({
+                  type: "downplay",
+                  seriesIndex: 0,
+                  dataIndex,
+                });
+            }
+            // Preserve Highlighted column during scroll
+            else if (xAxisLabelRef?.current && xAxisLabelRef?.current > -1) {
+              echartInstance &&
+                echartInstance.dispatchAction({
+                  type: "highlight",
+                  seriesIndex: [0],
+                });
+
+              const data = echartInstance
+                ? (echartInstance.getOption().series as any)[0].data
+                : [];
+
+              let dataIndex = [];
+
+              for (let i = 0; i < size; i++) {
+                dataIndex.push(xAxisLabelRef?.current * size + i);
+              }
+
+              echartInstance &&
+                echartInstance.dispatchAction({
+                  type: "downplay",
+                  seriesIndex: 0,
+                  dataIndex,
+                });
+            }
           },
           click: function (params: any) {
             const echartInstance = myRef?.current?.getEchartsInstance() as any;
@@ -235,101 +414,70 @@ const ECharts = React.forwardRef(
                     seriesIndex: 0,
                   });
                 clickedItem.current = -1;
+
+                onItemClicked?.([]);
               } else {
                 clickedItem.current = params.dataIndex;
+                onItemClicked?.(params.data);
 
-                if (params.targetType === "axisLabel") {
-                  echartInstance &&
-                    echartInstance.dispatchAction({
-                      type: "highlight",
-                      seriesIndex: [0],
-                    });
-                  const data = echartInstance
-                    ? echartInstance.getOption().series[0].data
-                    : [];
-                  const dataIndex = data
-                    .map(([xData, yData, value]: any, idx: any) =>
-                      params.dataIndex ===
-                        (params.componentType === "yAxis" ? yData : xData) &&
-                      Number.isFinite(value)
-                        ? idx
-                        : null
-                    )
-                    .filter((v: null) => v !== null);
-
-                  echartInstance &&
-                    echartInstance.dispatchAction({
-                      type: "downplay",
-                      seriesIndex: 0,
-                      dataIndex,
-                    });
-                } else {
-                  //Highligh the whole heatmap first
-                  echartInstance &&
-                    echartInstance.dispatchAction({
-                      type: "highlight",
-                      seriesIndex: params.seriesIndex,
-                    });
-
-                  //Downplay based on the Emphasis type
-                  const seriesIndex = params.seriesIndex,
-                    data = echartInstance.getOption().series[seriesIndex].data;
-                  const [x, y] = params.data;
-                  let dataIndex = [];
-
-                  switch (emphasis) {
-                    case "Item":
-                      dataIndex = params.dataIndex;
-                      break;
-
-                    case "Row":
-                      dataIndex = data
-                        .map(([xData, yData, value]: any, idx: any) =>
-                          y === yData && Number.isFinite(value) ? idx : null
-                        )
-                        .filter((v: null) => v !== null);
-                      break;
-
-                    case "Column":
-                      dataIndex = data
-                        .map(([xData, yData, value]: any, idx: any) =>
-                          x === xData && Number.isFinite(value) ? idx : null
-                        )
-                        .filter((v: null) => v !== null);
-                      break;
-
-                    case "Cross":
-                    default:
-                      dataIndex = data
-                        .map(([xData, yData, value]: any, idx: any) =>
-                          (y === yData && Number.isFinite(value)) ||
-                          (x === xData && Number.isFinite(value))
-                            ? idx
-                            : null
-                        )
-                        .filter((v: null) => v !== null);
-                      break;
-                  }
-
+                //Highligh the whole heatmap first
+                echartInstance &&
                   echartInstance.dispatchAction({
-                    type: "downplay",
-                    seriesIndex,
-                    dataIndex,
+                    type: "highlight",
+                    seriesIndex: params.seriesIndex,
                   });
+
+                //Downplay based on the Emphasis type
+                const seriesIndex = params.seriesIndex,
+                  data = echartInstance.getOption().series[seriesIndex].data;
+                const [x, y] = params.data;
+                let dataIndex = [];
+
+                switch (emphasis) {
+                  case "Item":
+                    dataIndex = params.dataIndex;
+                    break;
+
+                  case "Row":
+                    for (let i = 0; i < size; i++) {
+                      dataIndex.push(i * size + y);
+                    }
+                    break;
+
+                  case "Column":
+                    for (let i = 0; i < size; i++) {
+                      dataIndex.push(x * size + i);
+                    }
+                    break;
+
+                  case "Cross":
+                  default:
+                    for (let i = 0; i < size; i++) {
+                      dataIndex.push(i * size + y, x * size + i);
+                    }
+                    break;
                 }
+
+                echartInstance.dispatchAction({
+                  type: "downplay",
+                  seriesIndex,
+                  dataIndex,
+                });
               }
             }
           },
         }}
       />
     );
-  }
+  })
 );
 
 const Heatmap: React.FC = (props) => {
-  const clickedLabel = useRef<number>(-1);
+  const clickedLabelX = useRef<number>(-1);
+  const clickedLabelY = useRef<number>(-1);
   const chartRef = useRef<EChartsReact | null>(null);
-  const XAxisChartRef = useRef<HTMLDivElement | null>(null);
+  const XAxisChartRef = useRef<XAxisRefType>(null);
+  const YAxisChartRef = useRef<YAxisRefType>(null);
   const geneNames = useSelector(
     (state: RootState) => state.dataReducer.geneNames
   );
@@ -338,51 +486,37 @@ const Heatmap: React.FC = (props) => {
     (state: RootState) => state.dataReducer.heatmapCanvasSize
   );
 
-  useEffect(() => {
-    console.log({ chartRef });
-  }, [chartRef]);
-
   return (
-    <StyledHeatmapWrapper>
+    <StyledContainer>
       <h3>Heatmap</h3>
-      <ECharts
-        ref={(ref) => (chartRef.current = ref)}
-        onXAxisChange={(start, end) => {
-          const heatmapFullWidth =
-            (heatmapCanvasSize.width / (ITEM_COUNT * 2)) * size;
-          const itemSize = heatmapCanvasSize.width / (ITEM_COUNT * 2);
-          const maxToLeft = (size - ITEM_COUNT * 2) * itemSize;
-          const quantizedMove = Math.round(
-            start / ((itemSize * 100) / heatmapFullWidth)
-          );
-          let moveToLeft = quantizedMove * itemSize;
-          moveToLeft = (moveToLeft < maxToLeft ? moveToLeft : maxToLeft) * -1;
-          if (XAxisChartRef && XAxisChartRef.current) {
-            XAxisChartRef.current.style.left = `${moveToLeft}px`;
-          }
-        }}
-      />
-      <XAxisWrapper
-        id="x-axis-wrapper"
-        height={150}
-        width={heatmapCanvasSize.width}
-        left={0}
+
+      <YAxisWrapper
+        id="y-axis-wrapper"
+        height={heatmapCanvasSize.height}
+        width={Y_AXIS_WIDTH}
+        bottom={0}
       >
-        <XAxisChart
-          ref={XAxisChartRef}
+        <YAxisChart
+          ref={YAxisChartRef}
           geneNames={geneNames}
           labelClicked={(label) => {
+            clickedLabelX.current = -1;
+
+            if (XAxisChartRef.current) {
+              XAxisChartRef.current.changeActiveLabel(-1);
+            }
+
             if (chartRef && chartRef.current) {
               const echartInstance =
                 chartRef.current.getEchartsInstance() as any;
-              if (label.index === clickedLabel.current) {
+              if (label.index === clickedLabelY.current) {
                 echartInstance.dispatchAction({
                   type: "downplay",
                   seriesIndex: 0,
                 });
-                clickedLabel.current = -1;
+                clickedLabelY.current = -1;
               } else {
-                clickedLabel.current = label.index;
+                clickedLabelY.current = label.index;
 
                 echartInstance.dispatchAction({
                   type: "highlight",
@@ -391,9 +525,22 @@ const Heatmap: React.FC = (props) => {
 
                 const series = echartInstance.getOption().series;
                 const data = series[0].data;
+                const { start, end } = echartInstance.getOption().dataZoom[0];
+
+                const itemSize = heatmapCanvasSize.height / X_ITEM_COUNT;
+                const heatmapFullHeight = itemSize * size;
+                const quantizedCount = (itemSize * 100) / heatmapFullHeight;
+                const xMin = start / quantizedCount;
+                const xMax = end / quantizedCount;
+
                 const dataIndex = data
                   .map(([xData, yData, value]: any, idx: any) =>
-                    label.index === xData && Number.isFinite(value) ? idx : null
+                    label.index === yData &&
+                    xData > xMin - 1 &&
+                    xData < xMax + 1 &&
+                    Number.isFinite(value)
+                      ? idx
+                      : null
                   )
                   .filter((v: null) => v !== null);
 
@@ -405,10 +552,142 @@ const Heatmap: React.FC = (props) => {
               }
             }
           }}
-          left={0}
+        />
+      </YAxisWrapper>
+
+      <StyledHeatmapWrapper>
+        <ECharts
+          xAxisLabelRef={clickedLabelX}
+          yAxisLabelRef={clickedLabelY}
+          ref={(ref) => (chartRef.current = ref)}
+          onItemClicked={(item) => {
+            if (XAxisChartRef.current) {
+              XAxisChartRef.current.changeActiveLabel(item[0]);
+            }
+            if (YAxisChartRef.current) {
+              YAxisChartRef.current.changeActiveLabel(item[1]);
+            }
+            clickedLabelX.current = item[0];
+            clickedLabelY.current = item[1];
+          }}
+          onAxisChange={(start, end, dir) => {
+            // Scroll horizontaly
+            if (dir === "horizontal") {
+              const itemSize = heatmapCanvasSize.width / X_ITEM_COUNT;
+
+              const heatmapFullWidth = itemSize * size;
+              const maxToLeft = (size - X_ITEM_COUNT) * itemSize;
+              const quantizedMove = Math.round(
+                start / ((itemSize * 100) / heatmapFullWidth)
+              );
+
+              let moveToLeft = quantizedMove * itemSize;
+
+              moveToLeft =
+                (moveToLeft < maxToLeft ? moveToLeft : maxToLeft) * -1;
+              if (
+                XAxisChartRef &&
+                XAxisChartRef.current &&
+                XAxisChartRef.current.getWrapperRef() &&
+                XAxisChartRef.current.getWrapperRef().current
+              ) {
+                (
+                  XAxisChartRef.current.getWrapperRef()
+                    .current as HTMLDivElement
+                ).style.left = `${moveToLeft}px`;
+              }
+            } else {
+              // Scroll Vertically
+              const itemSize = heatmapCanvasSize.height / Y_ITEM_COUNT;
+              const heatmapFullHeight = itemSize * size;
+              const maxToBottom = (size - Y_ITEM_COUNT) * itemSize;
+              const quantizedMove = Math.round(
+                start / ((itemSize * 100) / heatmapFullHeight)
+              );
+              let moveToBottom = quantizedMove * itemSize;
+              moveToBottom =
+                (moveToBottom < maxToBottom ? moveToBottom : maxToBottom) * -1;
+              if (
+                YAxisChartRef &&
+                YAxisChartRef.current &&
+                YAxisChartRef.current.getWrapperRef() &&
+                YAxisChartRef.current.getWrapperRef().current
+              ) {
+                (
+                  YAxisChartRef.current.getWrapperRef()
+                    .current as HTMLDivElement
+                ).style.bottom = `${moveToBottom}px`;
+              }
+            }
+          }}
+        />
+      </StyledHeatmapWrapper>
+
+      <XAxisWrapper
+        id="x-axis-wrapper"
+        height={X_AXIS_WIDTH}
+        width={heatmapCanvasSize.width}
+        left={Y_AXIS_WIDTH}
+      >
+        <XAxisChart
+          ref={XAxisChartRef}
+          geneNames={geneNames}
+          labelClicked={(label) => {
+            clickedLabelY.current = -1;
+
+            if (YAxisChartRef.current) {
+              YAxisChartRef.current.changeActiveLabel(-1);
+            }
+
+            if (chartRef && chartRef.current) {
+              const echartInstance =
+                chartRef.current.getEchartsInstance() as any;
+              if (label.index === clickedLabelX.current) {
+                echartInstance.dispatchAction({
+                  type: "downplay",
+                  seriesIndex: 0,
+                });
+                clickedLabelX.current = -1;
+              } else {
+                clickedLabelX.current = label.index;
+
+                echartInstance.dispatchAction({
+                  type: "highlight",
+                  seriesIndex: [0],
+                });
+
+                const series = echartInstance.getOption().series;
+                const data = series[0].data;
+                const { start, end } = echartInstance.getOption().dataZoom[1];
+
+                const itemSize = heatmapCanvasSize.height / Y_ITEM_COUNT;
+                const heatmapFullHeight = itemSize * size;
+                const quantizedCount = (itemSize * 100) / heatmapFullHeight;
+                const yMin = start / quantizedCount;
+                const yMax = end / quantizedCount;
+
+                const dataIndex = data
+                  .map(([xData, yData, value]: any, idx: any) =>
+                    label.index === xData &&
+                    yData > yMin - 1 &&
+                    yData < yMax + 1 &&
+                    Number.isFinite(value)
+                      ? idx
+                      : null
+                  )
+                  .filter((v: null) => v !== null);
+
+                echartInstance.dispatchAction({
+                  type: "downplay",
+                  seriesIndex: 0,
+                  dataIndex,
+                });
+              }
+            }
+          }}
         />
       </XAxisWrapper>
-    </StyledHeatmapWrapper>
+    </StyledContainer>
   );
 };
 

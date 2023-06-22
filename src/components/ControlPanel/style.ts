@@ -1,5 +1,12 @@
 import { styled } from "@mui/material";
 
+export const StyledControlPanelWrapper = styled("div")`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+`;
+
 export const StyledForm = styled("div")`
   display: flex;
   flex-direction: column;

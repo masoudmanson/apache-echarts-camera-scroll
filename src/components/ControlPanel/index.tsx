@@ -1,6 +1,12 @@
 import { useDispatch, useSelector } from "react-redux";
-import { DefaultDropdownMenuOption, Dropdown } from "@czi-sds/components";
-import { StyledForm, StyledLabel } from "./style";
+import {
+  Callout,
+  CalloutTitle,
+  DefaultDropdownMenuOption,
+  Dropdown,
+  Tag,
+} from "@czi-sds/components";
+import { StyledControlPanelWrapper, StyledForm, StyledLabel } from "./style";
 import { useSnackbar } from "notistack";
 import {
   DataState,
@@ -89,7 +95,7 @@ const ControlPanel: React.FC = () => {
   );
 
   return (
-    <div>
+    <StyledControlPanelWrapper>
       <StyledForm>
         <h3>Contorl Panel</h3>
 
@@ -176,7 +182,27 @@ const ControlPanel: React.FC = () => {
           }}
         />
       </StyledForm>
-    </div>
+
+      <Callout
+        autoDismiss={false}
+        intent="info"
+        dismissed={false}
+        style={{
+          width: "unset",
+          margin: 0
+        }}
+      >
+        To scroll horizontally hold down {" "}
+        <Tag
+          color="gray"
+          label="SHIFT"
+          sdsStyle="square"
+          sdsType="secondary"
+          style={{ marginTop: 4 }}
+        />{" "}
+        key!
+      </Callout>
+    </StyledControlPanelWrapper>
   );
 
   function changeInterpolator(interpolator: DefaultDropdownMenuOption | null) {

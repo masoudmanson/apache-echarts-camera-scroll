@@ -1,14 +1,11 @@
-export const ITEM_COUNT = 20;
 export const EMPTY_ARRAY: any[] = [];
-export const X_AXIS_HOVER_CONTAINER_HEIGHT_PX = 150;
-export const X_AXIS_CHART_HEIGHT_PX = 130;
-export const EXCLUDE_IN_SCREENSHOT_CLASS_NAME = "delete-icon";
-export const CHART_PADDING_PX = 0;
-export const CHART_LEFT_PADDING = 40;
-export const CHART_TOP_PADDING = 150;
+export const HEATMAP_ITEM_SIZE = 25;
+export const Y_ITEM_COUNT = 20;
+export const X_ITEM_COUNT = 36;
+export const Y_AXIS_WIDTH = 120;
+export const X_AXIS_WIDTH = 150;
 export const ECHART_AXIS_LABEL_COLOR_HEX = "#555";
 export const ECHART_AXIS_LABEL_FONT_SIZE_PX = 14;
-export const GENE_INFO_BUTTON_PADDING_PX = 0;
 
 export const SELECTED_STYLE = {
   fontWeight: "bold" as never,
