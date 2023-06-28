@@ -50,9 +50,10 @@ export const YAxisLabel = styled.div`
     width: 100%;
     color: ${ECHART_AXIS_LABEL_COLOR_HEX};
     display: flex;
-    justify-content: end;
+    justify-content: start;
     align-items: center;
-    padding-right: 25px;
+    padding-right: 15px;
+    padding-left: 8px;
     &::before {
         content: "";
         position: absolute;

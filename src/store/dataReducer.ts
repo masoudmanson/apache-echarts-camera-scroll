@@ -3,6 +3,7 @@ import { createNoise2D } from "simplex-noise";
 import { Gene } from "../components/XAxisChart";
 import GeneListGenerator from "../helpers/geneListGenerator";
 import {
+  HEATMAP_DEFAULT_SIZE,
   HEATMAP_ITEM_SIZE,
   X_ITEM_COUNT,
   Y_ITEM_COUNT,
@@ -20,13 +21,13 @@ export interface DataState {
 }
 
 const initialState: DataState = {
-  data: generateData("Perlin Noise", 250),
-  size: 250,
+  data: generateData("Perlin Noise", HEATMAP_DEFAULT_SIZE),
+  size: HEATMAP_DEFAULT_SIZE,
   type: "Perlin Noise",
   symbol: "Rect",
   color: "Magma",
   emphasis: "Cross",
-  geneNames: GeneListGenerator(250),
+  geneNames: GeneListGenerator(HEATMAP_DEFAULT_SIZE),
   heatmapCanvasSize: {
     width: HEATMAP_ITEM_SIZE * (X_ITEM_COUNT + 1),
     height: HEATMAP_ITEM_SIZE * (Y_ITEM_COUNT + 1),

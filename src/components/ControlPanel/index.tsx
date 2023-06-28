@@ -35,6 +35,7 @@ const SIZES: DefaultDropdownMenuOption[] = [
   { name: "1,000,000", details: "1000 x 1000" },
   { name: "1,562,500", details: "1250 x 1250" },
   { name: "2,250,000", details: "1500 x 1500" },
+  { name: "2,722,500", details: "1650 x 1650" },
 ];
 
 const TYPES = [
