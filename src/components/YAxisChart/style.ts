@@ -112,7 +112,7 @@ export const GeneButtonStyle = styled.div<GeneButtonProps>`
 export const HoverContainer = styled.div`
   display: flex;
   flex-direction: row;
-  opacity: 0.1;
+  opacity: 0.15;
   position: absolute;
   right: 0;
   padding-right: 8px;
