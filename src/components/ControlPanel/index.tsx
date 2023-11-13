@@ -101,7 +101,7 @@ const ControlPanel: React.FC = () => {
   return (
     <StyledControlPanelWrapper>
       <StyledForm>
-        <h3>Contorl Panel</h3>
+        <h3>Control Panel</h3>
 
         <StyledLabel>HEATMAP COLOR</StyledLabel>
         <Dropdown
