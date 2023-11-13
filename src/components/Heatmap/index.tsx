@@ -7,8 +7,12 @@ import {
   interpolateSpectral,
 } from "d3-scale-chromatic";
 import ReactECharts from "echarts-for-react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store";
+import {
+  DataState,
+  setRenderer,
+} from "../../store/dataReducer";
 import { StyledContainer, StyledHeatmapWrapper } from "./style";
 import React, {
   MutableRefObject,
@@ -100,6 +104,9 @@ const ECharts = React.memo(
       (state: RootState) => state.dataReducer.emphasis
     );
     const symbol = useSelector((state: RootState) => state.dataReducer.symbol);
+    const renderer = useSelector((state: RootState) => state.dataReducer.renderer);
+
+    const dispatch = useDispatch();
 
     const values = [...Array(size).keys()];
 
@@ -133,8 +140,27 @@ const ECharts = React.memo(
       grid: {
         left: 0,
         right: 0,
-        top: 0,
+        top: 50,
         bottom: 0,
+      },
+      toolbox: {
+        itemSize: 12,
+        feature: {
+          saveAsImage: {
+            title: renderer === "svg" ? "Save as .svg" : "Save as .png"
+          },
+          myRenderer: {
+            show: true,
+            title: renderer === "svg" ? "Render as Canvas" : "Render as Svg",
+            icon: 'path://M 28.742 17.936 C 28.742 21.387 25.939 24.185 22.482 24.185 C 19.025 24.185 16.222 21.387 16.222 17.936 C 16.222 14.485 19.025 11.687 22.482 11.687 C 25.939 11.687 28.742 14.485 28.742 17.936 Z M 0 42.282 L 14.291 29.017 L 27.984 41.792 L 46.339 16.82 L 63.447 42.022 M 0 -3.25 L 63.493 -3.25 L 63.493 60.056 L 0 60.056 L 0 -3.25 Z',
+            onclick: function (){
+              dispatch(setRenderer((renderer === "svg" ? "canvas" : "svg") as DataState["renderer"]))
+            }
+          }
+        },
+        tooltip: {
+          show: false
+        }
       },
       dataZoom: [
         {
@@ -269,9 +295,9 @@ const ECharts = React.memo(
         })}
         option={options}
         opts={{
-          renderer: "svg",
+          renderer: renderer,
           width: heatmapCanvasSize.width,
-          height: heatmapCanvasSize.height,
+          height: heatmapCanvasSize.height + 50,
         }}
         onEvents={{
           dataZoom: function (evt: any) {
@@ -489,10 +515,11 @@ const Heatmap: React.FC = (props) => {
   const heatmapCanvasSize = useSelector(
     (state: RootState) => state.dataReducer.heatmapCanvasSize
   );
+  const renderer = useSelector((state: RootState) => state.dataReducer.renderer);
 
   return (
     <StyledContainer>
-      <h3>Heatmap</h3>
+      <h3>Heatmap ({renderer === "svg" ? "SVG version" : "Canvas version"})</h3>
 
       <YAxisWrapper
         id="y-axis-wrapper"

@@ -14,6 +14,7 @@ export interface DataState {
   size: number;
   type: "Random" | "Sequential" | "Perlin Noise";
   symbol: "Circle" | "Rect" | "RoundRect";
+  renderer: "svg" | "canvas";
   emphasis: "Item" | "Row" | "Column" | "Cross";
   color: string;
   geneNames: Gene[];
@@ -25,6 +26,7 @@ const initialState: DataState = {
   size: HEATMAP_DEFAULT_SIZE,
   type: "Perlin Noise",
   symbol: "Rect",
+  renderer: "svg",
   color: "Magma",
   emphasis: "Cross",
   geneNames: GeneListGenerator(HEATMAP_DEFAULT_SIZE),
@@ -84,6 +86,9 @@ export const dataSlice = createSlice({
     setSymbol: (state, action: PayloadAction<DataState["symbol"]>) => {
       state.symbol = action.payload;
     },
+    setRenderer: (state, action: PayloadAction<DataState["renderer"]>) => {
+      state.renderer = action.payload;
+    },
     setEmphasis: (state, action: PayloadAction<DataState["emphasis"]>) => {
       state.emphasis = action.payload;
     },
@@ -105,6 +110,7 @@ export const {
   setType,
   setColor,
   setSymbol,
+  setRenderer,
   setEmphasis,
   setGeneNames,
   setHeatmapCanvasSize,
