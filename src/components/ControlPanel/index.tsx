@@ -283,7 +283,7 @@ const ControlPanel: React.FC = () => {
 
       <Callout
         autoDismiss={false}
-        intent="warning"
+        intent="info"
         dismissed={false}
         style={{
           width: "unset",
@@ -292,10 +292,10 @@ const ControlPanel: React.FC = () => {
       >
         To scroll horizontally, hold down the{" "}
         <Tag
-          color="warning"
+          color="gray"
           label="SHIFT"
           sdsStyle="square"
-          sdsType="primary"
+          sdsType="secondary"
           hover={false}
           style={{ marginTop: 5 }}
         />{" "}

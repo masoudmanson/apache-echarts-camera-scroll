@@ -88,7 +88,7 @@ const ECharts = React.memo(
                 // There's a PR to allow touchpad panning
                 // https://github.com/apache/echarts/pull/17288
                 moveOnMouseWheel: false,
-                moveOnMouseMove: false,
+                moveOnMouseMove: true,
                 filterMode: "filter",
                 throttle: 0,
                 preventDefaultMouseMove: true,
@@ -96,13 +96,13 @@ const ECharts = React.memo(
             },
             {
                 // start index of the y axis window
-                startValue: Y_ITEM_COUNT - 1,
+                startValue: 0,
                 // end index of the y axis window
-                endValue: 0,
+                endValue: Y_ITEM_COUNT - 1,
                 type: "inside",
                 zoomOnMouseWheel: false,
                 moveOnMouseWheel: true,
-                moveOnMouseMove: false,
+                moveOnMouseMove: true,
                 yAxisIndex: 0,
                 filterMode: "filter",
                 maxValueSpan: Y_ITEM_COUNT,
@@ -116,6 +116,7 @@ const ECharts = React.memo(
             // no animation, since it feels very distracting
             animation: false,
             tooltip: {
+                enterable: true,
                 formatter: function (param: any) {
                     return [
                         `X-Axis: <strong>${xAxisLabelNames[param.data[0]]}</strong><br/>`,
@@ -267,9 +268,9 @@ const ECharts = React.memo(
 
                         // Preserve Highlighted row + column based on emphasis type during scroll
                         if (
-                            xAxisLabelRef?.current &&
+                            xAxisLabelRef?.current !== null &&
                             xAxisLabelRef?.current > -1 &&
-                            yAxisLabelRef?.current &&
+                            yAxisLabelRef?.current !== null &&
                             yAxisLabelRef?.current > -1
                         ) {
                             echartInstance &&
@@ -323,7 +324,7 @@ const ECharts = React.memo(
                                 });
                         }
                         // Preserve Highlighted row during scroll
-                        else if (yAxisLabelRef?.current && yAxisLabelRef?.current > -1) {
+                        else if (yAxisLabelRef?.current !== null && yAxisLabelRef?.current > -1) {
                             echartInstance &&
                                 echartInstance.dispatchAction({
                                     type: "downplay",
@@ -347,7 +348,7 @@ const ECharts = React.memo(
                                 });
                         }
                         // Preserve Highlighted column during scroll
-                        else if (xAxisLabelRef?.current && xAxisLabelRef?.current > -1) {
+                        else if (xAxisLabelRef?.current !== null && xAxisLabelRef?.current > -1) {
                             echartInstance &&
                                 echartInstance.dispatchAction({
                                     type: "downplay",
