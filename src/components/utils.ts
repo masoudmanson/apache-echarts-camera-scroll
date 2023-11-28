@@ -1,10 +1,12 @@
 export const EMPTY_ARRAY: any[] = [];
-export const HEATMAP_ITEM_SIZE = 25;
-export const HEATMAP_DEFAULT_SIZE = 250;
+export const HEATMAP_ITEM_SIZE = 24;
+export const HEATMAP_DEFAULT_SIZE = 100;
 export const Y_ITEM_COUNT = 20;
 export const X_ITEM_COUNT = 36;
-export const Y_AXIS_WIDTH = 120;
-export const X_AXIS_WIDTH = 150;
+export const Y_AXIS_WIDTH = 130;
+export const X_AXIS_WIDTH = 130;
+export const Y_AXIS_REVERSE = true;
+export const X_AXIS_REVERSE = false;
 export const ECHART_AXIS_LABEL_COLOR_HEX = "#555";
 export const ECHART_AXIS_LABEL_FONT_SIZE_PX = 14;
 
@@ -107,3 +109,6 @@ export function getFixedWidth(
 
   return text;
 }
+
+export const toPascalCase = (s: string | null | undefined) =>
+s ? s.replace(/(\w)(\w*)/g, (_, p, q) => p.toUpperCase() + q.toLowerCase()) : s;

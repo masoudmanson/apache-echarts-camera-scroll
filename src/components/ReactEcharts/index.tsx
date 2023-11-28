@@ -20,16 +20,15 @@ export function ReactECharts({
   theme,
 }: ReactEChartsProps): JSX.Element {
   const chartRef = useRef<HTMLDivElement>(null);
+  // const dispatch = useDispatch();
+  console.log("Running 0 ...");
 
   useEffect(() => {
+    console.log("Running 1 ...");
     // Initialize chart
     let chart: ECharts | undefined;
     if (chartRef.current !== null) {
       chart = init(chartRef.current, theme);
-
-      chart.on('dataZoom', function (evt) {
-        console.log('zoom', evt);
-      });
     }
 
     // Add chart resize listener
@@ -47,6 +46,7 @@ export function ReactECharts({
   }, [theme]);
 
   useEffect(() => {
+    console.log("Running 2 ...");
     // Update chart
     if (chartRef.current !== null) {
       const chart = getInstanceByDom(chartRef.current);
@@ -55,6 +55,8 @@ export function ReactECharts({
   }, [option, settings, theme]); // Whenever theme changes we need to add option and setting due to it being deleted in cleanup function
 
   useEffect(() => {
+    console.log("Running 3 ...");
+    
     // Update chart
     if (chartRef.current !== null) {
       const chart = getInstanceByDom(chartRef.current);
@@ -65,3 +67,7 @@ export function ReactECharts({
 
   return <div ref={chartRef} style={{ width: "100%", height: "100%", ...style }} />;
 }
+
+
+// console.log("set the fucking chart instance", chart);
+// dispatch(setChartInstance(chart));

@@ -3,9 +3,8 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../store";
 import {
   Y_ITEM_COUNT,
-  X_ITEM_COUNT,
+  Y_AXIS_REVERSE,
   ECHART_AXIS_LABEL_COLOR_HEX,
-  ECHART_AXIS_LABEL_FONT_SIZE_PX,
 } from "../utils";
 
 interface YAxisWrapperProps {
@@ -21,18 +20,18 @@ export const YAxisWrapper = styled.div<YAxisWrapperProps>`
   position: absolute;
   overflow: hidden;
   z-index: 2;
+  left: 1px;
   border-right: solid 1px #666;
 `;
 
 interface YAxisContainerProps {
-  height: number;
+  height?: number;
   width: number;
 }
 
 export const YAxisContainer = styled.div<YAxisContainerProps>`
   ${yAxisWidth}
   background-color: white;
-  height: ${(props) => props.height}px;
   left: 0px;
   position: absolute;
   display: flex;
@@ -41,7 +40,7 @@ export const YAxisContainer = styled.div<YAxisContainerProps>`
 `;
 
 export const YAxisLabel = styled.div`
-  ${() => {
+  ${({index}: {index: number}) => {
     const heatmapCanvasSize = useSelector(
       (state: RootState) => state.dataReducer.heatmapCanvasSize
     );
@@ -50,18 +49,17 @@ export const YAxisLabel = styled.div`
     width: 100%;
     color: ${ECHART_AXIS_LABEL_COLOR_HEX};
     display: flex;
-    justify-content: start;
+    justify-content: end;
     align-items: center;
-    padding-right: 15px;
-    padding-left: 8px;
+    padding-right: ${index < 100 ? 25 : index < 1000 ? 35 : 40}px;
     &::before {
         content: "";
         position: absolute;
         height: 1px;
         width: 5px;
         background-color: #666;
-        margin-top: 25px;
         right: 0;
+        ${Y_AXIS_REVERSE ? `margin-bottom: 25px;` : `margin-top: 25px;`}
     }`;
   }}
 `;
@@ -78,10 +76,6 @@ export const InfoButtonWrapper = styled.div`
   margin-top: 4px;
   justify-content: center;
   font-size: 10px;
-`;
-
-export const DeleteButtonWrapper = styled.div`
-  cursor: pointer;
 `;
 
 interface GeneButtonProps {
@@ -117,23 +111,6 @@ export const HoverContainer = styled.div`
   right: 0;
   padding-right: 8px;
   z-index: 3;
-`;
-
-export const CellCountLabel = styled.div`
-  ${() => {
-    const heatmapCanvasSize = useSelector(
-      (state: RootState) => state.dataReducer.heatmapCanvasSize
-    );
-    return `
-        font: ${ECHART_AXIS_LABEL_FONT_SIZE_PX}px sans-serif;
-        color: ${ECHART_AXIS_LABEL_COLOR_HEX};
-        width: ${heatmapCanvasSize.width / X_ITEM_COUNT}px;
-        height: 100%;
-        writing-mode: vertical-rl;
-        position: absolute;
-        left: ${heatmapCanvasSize.width / X_ITEM_COUNT}px;
-        transform: scale(-1, -1);`;
-  }}
 `;
 
 function yAxisWidthAndOffset({

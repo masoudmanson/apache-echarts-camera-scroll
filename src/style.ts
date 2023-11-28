@@ -1,12 +1,12 @@
 import { styled } from "@mui/material";
 
 export const Container = styled("div")`
-    font-family: Open sans;
     display: grid;
-    grid-column-gap: 0;
-    grid-row-gap: 0;
     grid-template-columns: 250px 1fr;
-    grid-template-rows: 1fr;
+    grid-template-rows: 70px 1fr;
+    grid-column-gap: 0px;
+    grid-row-gap: 0px;
+    position: relative;
 
     h3 {
         font-size: 20px;
@@ -16,13 +16,20 @@ export const Container = styled("div")`
 `;
 
 export const Sidebar = styled("div")`
+    grid-area: 2 / 1 / 6 / 2; 
     border-right: solid 1px #eee;
     padding: 20px 15px;
-    height: 100vh;
+    height: calc(100vh - 70px);
+    position: sticky;
+    top: 70px;
+    left: 0;
+    z-index: 100;
+    background-color: white;
 `;
 
 export const Main = styled("div")`
-    padding: 20px 25px;
+    grid-area: 2 / 2 / 6 / 6;
+    padding: 20px;
 
     .echarts-for-react {
         height: unset !important;

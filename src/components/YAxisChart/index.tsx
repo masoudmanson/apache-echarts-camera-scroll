@@ -19,6 +19,7 @@ export interface Gene {
 interface Props {
   geneNames: Gene[];
   labelClicked: (gene: Gene) => void;
+  reverse?: boolean;
 }
 
 export const GENE_LABEL_HOVER_CONTAINER_ID = "gene-hover-container";
@@ -59,7 +60,7 @@ function GeneButton({
       >
         <InfoButtonWrapper>{geneIndex}</InfoButtonWrapper>
       </HoverContainer>
-      <YAxisLabel className={"gene-label-container"}>
+      <YAxisLabel className={"gene-label-container"} index={geneIndex}>
         <YAxisGeneName font={currentFont}>{formattedLabel}</YAxisGeneName>
       </YAxisLabel>
     </GeneButtonStyle>
@@ -73,9 +74,11 @@ export interface YAxisRefType {
 
 const YAxisChart = forwardRef(
   (
-    { geneNames, labelClicked }: Props,
+    { geneNames, labelClicked, reverse = false }: Props,
     ref: React.Ref<YAxisRefType>
   ): JSX.Element => {
+    const finalGeneNames = reverse ? [...geneNames].reverse() : geneNames;
+
     const heatmapCanvasSize = useSelector(
       (state: RootState) => state.dataReducer.heatmapCanvasSize
     );
@@ -102,7 +105,7 @@ const YAxisChart = forwardRef(
         height={heatmapCanvasSize.width}
         ref={wrapperRef}
       >
-        {geneNames.map((gene) => (
+        {finalGeneNames.map((gene) => (
           <GeneButton
             key={gene.name}
             gene={gene}

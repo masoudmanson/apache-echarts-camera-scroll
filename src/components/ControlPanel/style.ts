@@ -17,6 +17,11 @@ export const StyledForm = styled("div")`
     margin-bottom: 15px;
     width: 100%;
   }
+
+  h5 {
+    margin-bottom: 15px;
+    font-weight: 500;
+  }
 `;
 
 export const StyledLabel = styled("span")`

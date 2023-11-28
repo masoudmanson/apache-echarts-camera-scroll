@@ -2,10 +2,8 @@ import styled from "@emotion/styled";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store";
 import {
-  Y_ITEM_COUNT,
   X_ITEM_COUNT,
   ECHART_AXIS_LABEL_COLOR_HEX,
-  ECHART_AXIS_LABEL_FONT_SIZE_PX,
 } from "../utils";
 
 interface XAxisWrapperProps {
@@ -21,7 +19,8 @@ export const XAxisWrapper = styled.div<XAxisWrapperProps>`
   position: absolute;
   overflow: hidden;
   z-index: 2;
-  border-top: solid 1px #666;
+  top: 1px;
+  border-bottom: solid 1px #666;
 `;
 
 interface XAxisContainerProps {
@@ -46,23 +45,24 @@ export const XAxisLabel = styled.div`
       (state: RootState) => state.dataReducer.heatmapCanvasSize
     );
     return `
-    height: 100%;
-    width: ${heatmapCanvasSize.width / X_ITEM_COUNT}px;
-    writing-mode: vertical-lr;
-    color: ${ECHART_AXIS_LABEL_COLOR_HEX};
-    display: flex;
-    justify-content: start;
-    align-items: center;
-    padding-top: 25px;
-    &::before {
-        content: "";
-        position: absolute;
-        width: 1px;
-        height: 5px;
-        background-color: #666;
-        margin-left: -25px;
-        top: 0;
-    }`;
+      height: 100%;
+      width: ${heatmapCanvasSize.width / X_ITEM_COUNT}px;
+      writing-mode: vertical-lr;
+      color: ${ECHART_AXIS_LABEL_COLOR_HEX};
+      display: flex;
+      justify-content: end;
+      align-items: center;
+      padding-bottom: 25px;
+      &::before {
+          content: "";
+          position: absolute;
+          width: 1px;
+          height: 5px;
+          background-color: #666;
+          margin-left: -25px;
+          bottom: 0;
+      }
+    `;
   }}
 `;
 
@@ -79,10 +79,6 @@ export const InfoButtonWrapper = styled.div`
   margin-top: 4px;
   justify-content: center;
   font-size: 10px;
-`;
-
-export const DeleteButtonWrapper = styled.div`
-  cursor: pointer;
 `;
 
 interface GeneButtonProps {
@@ -115,25 +111,8 @@ export const HoverContainer = styled.div`
   flex-direction: column;
   opacity: 0.15;
   position: absolute;
-  top: 0;
+  bottom: 0;
   z-index: 3;
-`;
-
-export const CellCountLabel = styled.div`
-  ${() => {
-    const heatmapCanvasSize = useSelector(
-      (state: RootState) => state.dataReducer.heatmapCanvasSize
-    );
-    return `
-        font: ${ECHART_AXIS_LABEL_FONT_SIZE_PX}px sans-serif;
-        color: ${ECHART_AXIS_LABEL_COLOR_HEX};
-        width: ${heatmapCanvasSize.width / X_ITEM_COUNT}px;
-        height: 100%;
-        writing-mode: vertical-rl;
-        position: absolute;
-        left: ${heatmapCanvasSize.width / X_ITEM_COUNT}px;
-        transform: scale(-1, -1);`;
-  }}
 `;
 
 function xAxisWidthAndOffset({ width, left }: { width: number; left: number }) {
