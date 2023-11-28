@@ -27,7 +27,7 @@ const Header = () => {
 
                 {/* Todo: Check the SDS tooltip component to fix these type errors */}
                 <Tooltip
-                    title="To switch between PNG or SVG versions, you can switch the heatmap renderer from the control panel. Selecting the SVG renderer will allow you to download a .svg version, while choosing the canvas renderer will provide the .png export option."
+                    title="Change the heatmap renderer from the control panel, To switch between PNG or SVG exports. Selecting the SVG renderer will allow you to download a .svg version, while choosing the canvas renderer will provide the .png export option."
                     sdsStyle="light"
                     placement="bottom-end"
                     arrow
