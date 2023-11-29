@@ -1,0 +1,7 @@
+{
+    "include": [
+      "src/components/**/*.{ts,tsx}",
+      "src/App.tsx"
+    ],
+    "tsconfigPath": "tsconfig.json"
+  }

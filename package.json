@@ -1,9 +1,9 @@
 {
-  "name": "data-viz-colors",
+  "name": "sds-heatmap-demo",
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://masoudmanson.github.io/data-viz-colors",
+  "homepage": "https://github.com/masoudmanson/sds-heatmap",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -13,8 +13,8 @@
   },
   "dependencies": {
     "@czi-sds/components": "^19.0.0",
-    "@emotion/css": "11.11.0",
     "@emotion/core": "^11.0.0",
+    "@emotion/css": "11.11.0",
     "@emotion/react": "11.11.0",
     "@emotion/styled": "11.11.0",
     "@mui/base": "^5.0.0-beta.3",
@@ -38,6 +38,7 @@
   },
   "devDependencies": {
     "@hcorta/react-echarts": "^2.0.0",
+    "@omlet/cli": "^1.0.1-beta.39",
     "@types/chroma-js": "^2.4.0",
     "@types/d3-array": "^3.0.4",
     "@types/d3-color": "^3.1.0",
