@@ -1,8 +1,20 @@
 import { useSelector } from "react-redux";
 import { HeaderLeft, HeaderRight, StyledButtonIcon, StyledHeader, StyledIcon } from "./style";
 import { RootState } from "../../store";
-import { Button, Icon, Tooltip } from "@czi-sds/components";
+import { Button, Icon, Tag, Tooltip } from "@czi-sds/components";
 import { useAppContext } from "../../store/useAppContext";
+
+const TooltipTag = ({ label }: { label: string }) => {
+    return (
+        <Tag
+            label={label}
+            hover={false}
+            color="gray"
+            sdsType="secondary"
+            style={{ margin: "-2px 4px 0 0" }}
+        />
+    );
+};
 
 const Header = () => {
     const renderer = useSelector((state: RootState) => state.dataReducer.renderer);
@@ -25,9 +37,15 @@ const Header = () => {
                     Download as {renderer === "svg" ? ".svg" : ".png"}
                 </Button>
 
-                {/* Todo: Check the SDS tooltip component to fix these type errors */}
                 <Tooltip
-                    title="Change the heatmap renderer from the control panel, To switch between PNG or SVG exports. Selecting the SVG renderer will allow you to download a .svg version, while choosing the canvas renderer will provide the .png export option."
+                    title={
+                        <div>To modify the renderer for the heatmap, navigate to the control panel. 
+                            Within the control panel, you have the option to toggle between two 
+                            renderers: <TooltipTag label="SVG" />and <TooltipTag label="Canvas" />. 
+                            If you opt for the SVG renderer, you can download the heatmap 
+                            in <TooltipTag label="SVG" />format. Alternatively, selecting the 
+                            canvas renderer provides the option to export the heatmap 
+                            in <TooltipTag label="PNG" />format.</div>}
                     sdsStyle="light"
                     placement="bottom-end"
                     arrow
@@ -41,20 +59,19 @@ const Header = () => {
     function saveAsImage(title: string) {
         const isSvg = renderer === 'svg';
         const type = isSvg ? 'svg' : 'png';
-        const url = chartInstance?.getEchartsInstance().getConnectedDataURL({
+        const url = chartInstance.getConnectedDataURL({
             type: type,
             backgroundColor: 'transparent',
             excludeComponents: ['toolbox'],
             pixelRatio: 1
         });
-
+        
         if (url) {
             const $a = document.createElement('a');
             $a.download = title + '.' + type;
             $a.target = '_blank';
             $a.href = url;
             const evt = new MouseEvent('click', {
-                // some micro front-end framework， window maybe is a Proxy
                 view: document.defaultView,
                 bubbles: true,
                 cancelable: false

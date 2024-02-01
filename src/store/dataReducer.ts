@@ -10,7 +10,8 @@ import {
 } from "../components/utils";
 
 export interface DataState {
-  data: (number | string)[][];
+  // data: (number | string)[][];
+  data: { x: number; y: number; value: number | string }[];
   size: number;
   type: "random" | "sequential" | "perlin";
   camera: boolean;
@@ -42,13 +43,15 @@ function generateData(type: string, size: number) {
   switch (type) {
     case "sequential":
       return Array.from({ length: size }, (_, i) =>
-        Array.from({ length: size }, (_, j) => [i, j, (i + j) / (2 * size)])
+        Array.from({ length: size }, (_, j) => ({ x: i, y: j, value: (i + j) / (2 * size) }))
       ).flat();
+
 
     case "random":
       return Array.from({ length: size }, (_, i) =>
-        Array.from({ length: size }, (_, j) => [i, j, Math.random()])
+        Array.from({ length: size }, (_, j) => ({ x: i, y: j, value: Math.random() }))
       ).flat();
+
 
     case "perlin":
     default: {
@@ -56,11 +59,11 @@ function generateData(type: string, size: number) {
       const noiseSeed = Math.floor(size / 20);
 
       return Array.from({ length: size }, (_, i) =>
-        Array.from({ length: size }, (_, j) => [
-          i,
-          j,
-          (noise2D(i / noiseSeed, j / noiseSeed) + 1) * 0.5,
-        ])
+        Array.from({ length: size }, (_, j) => ({
+          x: i,
+          y: j,
+          value: (noise2D(i / noiseSeed, j / noiseSeed) + 1) * 0.5
+        }))
       ).flat();
     }
   }

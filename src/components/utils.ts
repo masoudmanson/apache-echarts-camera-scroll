@@ -1,6 +1,6 @@
 export const EMPTY_ARRAY: any[] = [];
 export const HEATMAP_ITEM_SIZE = 24;
-export const HEATMAP_DEFAULT_SIZE = 100;
+export const HEATMAP_DEFAULT_SIZE = 50;
 export const Y_ITEM_COUNT = 20;
 export const X_ITEM_COUNT = 36;
 export const Y_AXIS_WIDTH = 130;

@@ -1,4 +1,4 @@
-import { forwardRef, useImperativeHandle, useRef, useState } from "react";
+import { forwardRef, memo, useCallback, useImperativeHandle, useMemo, useRef, useState } from "react";
 import {
   YAxisContainer,
   YAxisLabel,
@@ -40,18 +40,23 @@ function GeneButton({
       ${active ? SELECTED_STYLE.fontWeight : "normal"}
       ${SELECTED_STYLE.fontSize}px ${SELECTED_STYLE.fontFamily}
     `;
-  const { text: formattedLabel, length } = formatLabel(
-    `${geneName}`,
-    Y_AXIS_WIDTH - 40, // Gene label length is capped to this value
-    currentFont
-  );
+
+  const formattedLabel = useMemo(() => {
+    return formatLabel(
+      `${geneName}`,
+      Y_AXIS_WIDTH - 40, // Gene label length is capped to this value
+      currentFont
+    ).text;
+  }, [geneName, currentFont]);
+
+  const memoizedHandleGeneClick = useCallback(() => {
+    handleGeneClick(gene);
+  }, [handleGeneClick, gene]);
 
   return (
     <GeneButtonStyle
       id={`gene-label-${geneName}`}
-      onClick={() => {
-        handleGeneClick(gene);
-      }}
+      onClick={memoizedHandleGeneClick}
       active={active}
     >
       <HoverContainer
@@ -126,4 +131,4 @@ const YAxisChart = forwardRef(
   }
 );
 
-export default YAxisChart;
+export default memo(YAxisChart);

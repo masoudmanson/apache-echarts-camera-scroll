@@ -1,4 +1,4 @@
-import { createContext, useState } from "react";
+import { createContext } from "react";
 import { EChartsInstance } from "echarts-for-react";
 
 export interface ChartContextValue {
