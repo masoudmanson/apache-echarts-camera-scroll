@@ -321,9 +321,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@czi-sds/components@npm:^19.2.0":
-  version: 19.2.0
-  resolution: "@czi-sds/components@npm:19.2.0"
+"@czi-sds/components@npm:^19.4.0":
+  version: 19.4.0
+  resolution: "@czi-sds/components@npm:19.4.0"
   peerDependencies:
     "@emotion/core": ^11.0.0
     "@emotion/css": ^11.11.2
@@ -335,13 +335,13 @@ __metadata:
     "@mui/material": ^5.15.3
     react: ">=17.0.1"
     react-dom: ">=17.0.1"
-  checksum: 10c0/569fb30c25d4774dffc29ab597eee13ba5fb296940b40106efb78c2da34fb391098e0c8bc37372b595980249e67c58dfdae423018ae507c6ba57e163a6322a7a
+  checksum: 10c0/467308ee7debd83bf20f609f38a7e5487d4f6ae7a0e2b0a544fd94504fd1bcc8d95f666d154a05aed9178ff81f63bbdce1d117d3161ff6d56f375b62b6eef4bc
   languageName: node
   linkType: hard
 
-"@czi-sds/data-viz@file:../sci-components/packages/data-viz::locator=sds-heatmap-demo%40workspace%3A.":
-  version: 0.4.2
-  resolution: "@czi-sds/data-viz@file:../sci-components/packages/data-viz#../sci-components/packages/data-viz::hash=8d025d&locator=sds-heatmap-demo%40workspace%3A."
+"@czi-sds/data-viz@npm:^0.6.0":
+  version: 0.6.0
+  resolution: "@czi-sds/data-viz@npm:0.6.0"
   dependencies:
     echarts: "npm:^5.4.3"
     lodash: "npm:^4.17.21"
@@ -358,7 +358,7 @@ __metadata:
     lodash: ^4.17.21
     react: ">=17.0.1"
     react-dom: ">=17.0.1"
-  checksum: 10c0/50c06c3d7f8c32bceabdfeaa0a1d6a7fb8e203d39aa5a8b7ed3f20a5377c7d053a3f7d2849cca8ad9f2ee0dac81c8581338e590c6e9dbebe07d9358156f157ba
+  checksum: 10c0/05f2d06b39ac020f4a92325bef350a76c52f17d70d195f23a877ac981e75eaa8ada83c217c26f56739925826959408b7fb1b216aa84907d43cd4d6a8e66c4014
   languageName: node
   linkType: hard
 
@@ -5252,8 +5252,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "sds-heatmap-demo@workspace:."
   dependencies:
-    "@czi-sds/components": "npm:^19.2.0"
-    "@czi-sds/data-viz": ../sci-components/packages/data-viz
+    "@czi-sds/components": "npm:^19.4.0"
+    "@czi-sds/data-viz": "npm:^0.6.0"
     "@emotion/core": "npm:^11.0.0"
     "@emotion/css": "npm:11.11.0"
     "@emotion/react": "npm:11.11.0"

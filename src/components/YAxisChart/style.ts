@@ -40,7 +40,7 @@ export const YAxisContainer = styled.div<YAxisContainerProps>`
 `;
 
 export const YAxisLabel = styled.div`
-  ${({index}: {index: number}) => {
+  ${({ index }: { index: number }) => {
     const heatmapCanvasSize = useSelector(
       (state: RootState) => state.dataReducer.heatmapCanvasSize
     );
@@ -106,7 +106,7 @@ export const GeneButtonStyle = styled.div<GeneButtonProps>`
 export const HoverContainer = styled.div`
   display: flex;
   flex-direction: row;
-  opacity: 0.15;
+  opacity: 0.2;
   position: absolute;
   right: 0;
   padding-right: 8px;

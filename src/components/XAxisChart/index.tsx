@@ -45,7 +45,7 @@ function GeneButton({
     ${active ? SELECTED_STYLE.fontWeight : "normal"}
     ${SELECTED_STYLE.fontSize}px ${SELECTED_STYLE.fontFamily}
   `;
-  
+
   const formattedLabel = useMemo(() => {
     return formatLabel(
       `${geneName}`,
@@ -64,7 +64,10 @@ function GeneButton({
       onClick={memoizedHandleGeneClick}
       active={active}
     >
-      <HoverContainer className="x-axis-hover-container" id={GENE_LABEL_HOVER_CONTAINER_ID}>
+      <HoverContainer
+        className="x-axis-hover-container"
+        id={GENE_LABEL_HOVER_CONTAINER_ID}
+      >
         <InfoButtonWrapper>{geneIndex}</InfoButtonWrapper>
       </HoverContainer>
       <XAxisLabel className={"gene-label-container"}>
@@ -116,13 +119,13 @@ const XAxisChart = forwardRef(
             gene={gene}
             genesToDelete={[""]}
             active={activeGene === gene.index}
-            handleGeneClick={(gene) => {
-              if (activeGene === gene.index) {
+            handleGeneClick={(theGene) => {
+              if (activeGene === theGene.index) {
                 setActiveGene(null);
               } else {
-                setActiveGene(gene.index);
+                setActiveGene(theGene.index);
               }
-              labelClicked(gene);
+              labelClicked(theGene);
             }}
           />
         ))}

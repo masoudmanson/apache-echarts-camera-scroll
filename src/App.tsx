@@ -4,10 +4,12 @@ import { Container, Main, Sidebar } from "./style";
 import Header from "./components/Header";
 import { AppContext } from "./store/AppContext";
 import { useState } from "react";
-import { EChartsInstance } from "echarts-for-react";
+import { EChartsType } from "echarts";
 
 function App() {
-  const [chartInstance, setChartInstance] = useState<EChartsInstance | null>(null);
+  const [chartInstance, setChartInstance] = useState<EChartsType | undefined>(
+    undefined
+  );
 
   return (
     <AppContext.Provider value={{ chartInstance, setChartInstance }}>

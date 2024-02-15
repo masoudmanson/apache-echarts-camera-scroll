@@ -1,4 +1,12 @@
-import { forwardRef, memo, useCallback, useImperativeHandle, useMemo, useRef, useState } from "react";
+import {
+  forwardRef,
+  memo,
+  useCallback,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   YAxisContainer,
   YAxisLabel,
@@ -116,13 +124,13 @@ const YAxisChart = forwardRef(
             gene={gene}
             genesToDelete={[""]}
             active={activeGene === gene.index}
-            handleGeneClick={(gene) => {
-              if (activeGene === gene.index) {
+            handleGeneClick={(theGene) => {
+              if (activeGene === theGene.index) {
                 setActiveGene(null);
               } else {
-                setActiveGene(gene.index);
+                setActiveGene(theGene.index);
               }
-              labelClicked(gene);
+              labelClicked(theGene);
             }}
           />
         ))}

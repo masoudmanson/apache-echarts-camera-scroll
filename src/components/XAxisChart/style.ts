@@ -1,10 +1,7 @@
 import styled from "@emotion/styled";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store";
-import {
-  X_ITEM_COUNT,
-  ECHART_AXIS_LABEL_COLOR_HEX,
-} from "../utils";
+import { X_ITEM_COUNT, ECHART_AXIS_LABEL_COLOR_HEX } from "../utils";
 
 interface XAxisWrapperProps {
   height: number;
@@ -109,7 +106,7 @@ export const GeneButtonStyle = styled.div<GeneButtonProps>`
 export const HoverContainer = styled.div`
   display: flex;
   flex-direction: column;
-  opacity: 0.15;
+  opacity: 0.2;
   position: absolute;
   bottom: 0;
   z-index: 3;

@@ -1,7 +1,7 @@
 import { useSelector } from "react-redux";
 import { RootState } from "../../store";
 import { StyledContainer, StyledHeatmapWrapper } from "./style";
-import React, { useRef } from "react";
+import { useRef } from "react";
 import { XAxisWrapper } from "../XAxisChart/style";
 import XAxisChart, { XAxisRefType } from "../XAxisChart";
 import {
@@ -17,7 +17,7 @@ import { YAxisWrapper } from "../YAxisChart/style";
 import ECharts from "../ECharts";
 import { getInstanceByDom } from "echarts";
 
-const Heatmap: React.FC = (props) => {
+const Heatmap = () => {
   const clickedLabelX = useRef<number>(-1);
   const clickedLabelY = useRef<number>(-1);
   const XAxisChartRef = useRef<XAxisRefType>(null);
@@ -35,9 +35,9 @@ const Heatmap: React.FC = (props) => {
   const camera = useSelector((state: RootState) => state.dataReducer.camera);
 
   const chartRef = useRef<HTMLDivElement>(null);
-  
+
   return (
-    <StyledContainer camera={camera}>
+    <StyledContainer>
       <YAxisWrapper
         id="y-axis-wrapper"
         height={camera ? heatmapCanvasSize.height : HEATMAP_ITEM_SIZE * size}
@@ -48,6 +48,7 @@ const Heatmap: React.FC = (props) => {
           reverse
           ref={YAxisChartRef}
           geneNames={geneNames}
+          // eslint-disable-next-line sonarjs/cognitive-complexity
           labelClicked={(label) => {
             clickedLabelX.current = -1;
 
@@ -55,30 +56,31 @@ const Heatmap: React.FC = (props) => {
               XAxisChartRef.current.changeActiveLabel(-1);
             }
 
-            if(chartRef.current) {
+            if (chartRef.current) {
               const echartInstance = getInstanceByDom(chartRef.current);
 
-              if(echartInstance) {
+              if (echartInstance) {
                 if (label.index === clickedLabelY.current) {
                   echartInstance.dispatchAction({
-                    type: "downplay",
                     seriesIndex: 0,
+                    type: "downplay",
                   });
                   clickedLabelY.current = -1;
                 } else {
                   clickedLabelY.current = label.index;
 
                   echartInstance.dispatchAction({
-                    type: "downplay",
                     seriesIndex: [0],
+                    type: "downplay",
                   });
 
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   const echartInstanceOptions: any = echartInstance.getOption();
                   const data = echartInstanceOptions.dataset[0].source;
 
                   const { start, end } = echartInstanceOptions.dataZoom[0]
                     ? echartInstanceOptions.dataZoom[0]
-                    : { start: 0, end: 100 };
+                    : { end: 100, start: 0 };
 
                   const itemSize = heatmapCanvasSize.height / X_ITEM_COUNT;
                   const heatmapFullHeight = itemSize * size;
@@ -87,20 +89,21 @@ const Heatmap: React.FC = (props) => {
                   const xMax = end / quantizedCount;
 
                   const dataIndex = data
-                    .map(({x: xData, y: yData, value}: any, idx: any) =>
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    .map(({ x: xData, y: yData, value }: any, idx: any) =>
                       label.index === yData &&
-                        xData > xMin - 1 &&
-                        xData < xMax + 1 &&
-                        Number.isFinite(value)
+                      xData > xMin - 1 &&
+                      xData < xMax + 1 &&
+                      Number.isFinite(value)
                         ? idx
                         : null
                     )
                     .filter((v: null) => v !== null);
 
                   echartInstance.dispatchAction({
-                    type: "highlight",
-                    seriesIndex: 0,
                     dataIndex,
+                    seriesIndex: 0,
+                    type: "highlight",
                   });
                 }
               }
@@ -118,6 +121,7 @@ const Heatmap: React.FC = (props) => {
         <XAxisChart
           ref={XAxisChartRef}
           geneNames={geneNames}
+          // eslint-disable-next-line sonarjs/cognitive-complexity
           labelClicked={(label) => {
             clickedLabelY.current = -1;
 
@@ -128,50 +132,52 @@ const Heatmap: React.FC = (props) => {
             if (chartRef.current) {
               const echartInstance = getInstanceByDom(chartRef.current);
 
-              if(echartInstance) {
+              if (echartInstance) {
                 if (label.index === clickedLabelX.current) {
                   echartInstance?.dispatchAction({
-                    type: "downplay",
                     seriesIndex: 0,
+                    type: "downplay",
                   });
                   clickedLabelX.current = -1;
                 } else {
                   clickedLabelX.current = label.index;
-    
+
                   echartInstance?.dispatchAction({
-                    type: "downplay",
                     seriesIndex: [0],
+                    type: "downplay",
                   });
-    
+
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   const chartInstanceOptions: any = echartInstance.getOption();
-    
+
                   const data = chartInstanceOptions.dataset[0].source;
-    
+
                   const { start, end } = chartInstanceOptions.dataZoom[1]
                     ? chartInstanceOptions.dataZoom[1]
-                    : { start: 0, end: 100 };
-    
+                    : { end: 100, start: 0 };
+
                   const itemSize = heatmapCanvasSize.height / Y_ITEM_COUNT;
                   const heatmapFullHeight = itemSize * size;
                   const quantizedCount = (itemSize * 100) / heatmapFullHeight;
                   const yMin = start / quantizedCount;
                   const yMax = end / quantizedCount;
-    
+
                   const dataIndex = data
-                    .map(({x: xData, y: yData, value}: any, idx: any) =>
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    .map(({ x: xData, y: yData, value }: any, idx: any) =>
                       label.index === xData &&
-                        yData > yMin - 1 &&
-                        yData < yMax + 1 &&
-                        Number.isFinite(value)
+                      yData > yMin - 1 &&
+                      yData < yMax + 1 &&
+                      Number.isFinite(value)
                         ? idx
                         : null
                     )
                     .filter((v: null) => v !== null);
-    
+
                   echartInstance?.dispatchAction({
-                    type: "highlight",
-                    seriesIndex: 0,
                     dataIndex,
+                    seriesIndex: 0,
+                    type: "highlight",
                   });
                 }
               }
@@ -191,9 +197,9 @@ const Heatmap: React.FC = (props) => {
                 XAxisChartRef.current.changeActiveLabel(null);
                 YAxisChartRef.current.changeActiveLabel(null);
               } else {
-                emphasis !== "row" &&
+                if (emphasis !== "row")
                   XAxisChartRef.current.changeActiveLabel(item?.x);
-                emphasis !== "column" &&
+                if (emphasis !== "column")
                   YAxisChartRef.current.changeActiveLabel(item?.y);
               }
             }
@@ -201,6 +207,7 @@ const Heatmap: React.FC = (props) => {
             clickedLabelX.current = item?.x ? item.x : -1;
             clickedLabelY.current = item?.y ? item.y : -1;
           }}
+          // eslint-disable-next-line sonarjs/cognitive-complexity
           onAxisChange={(start, end, dir) => {
             // Scroll horizontally
             if (dir === "horizontal") {
@@ -233,7 +240,7 @@ const Heatmap: React.FC = (props) => {
               const heatmapFullHeight = itemSize * size;
               const maxToBottom = (size - Y_ITEM_COUNT) * itemSize;
               // console.table({itemSize, heatmapFullHeight, maxToBottom});
-              
+
               const quantizedMove = Math.round(
                 start / ((itemSize * 100) / heatmapFullHeight)
               );

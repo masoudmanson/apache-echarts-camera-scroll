@@ -1,4 +1,4 @@
-export const EMPTY_ARRAY: any[] = [];
+export const EMPTY_ARRAY = [];
 export const HEATMAP_ITEM_SIZE = 24;
 export const HEATMAP_DEFAULT_SIZE = 50;
 export const Y_ITEM_COUNT = 20;
@@ -11,9 +11,9 @@ export const ECHART_AXIS_LABEL_COLOR_HEX = "#555";
 export const ECHART_AXIS_LABEL_FONT_SIZE_PX = 14;
 
 export const SELECTED_STYLE = {
-  fontWeight: "bold" as never,
   fontFamily: "sans-serif",
   fontSize: 12,
+  fontWeight: "bold" as never,
   padding: 4,
 };
 
@@ -42,7 +42,7 @@ export function formatLabel(
   length: number;
 } {
   // failsafe, should never be falsy
-  if (!CTX) return { text: name, length: 0 };
+  if (!CTX) return { length: 0, text: name };
 
   CTX.font = font;
   const ellipsisWidth = CTX.measureText("...").width;
@@ -51,8 +51,8 @@ export function formatLabel(
 
   if (fullWidth <= maxWidth) {
     return {
-      text: name,
       length: fullWidth,
+      text: name,
     };
   }
 
@@ -64,8 +64,8 @@ export function formatLabel(
   const formattedLabel = firstHalf + " ... " + secondHalf;
 
   return {
-    text: formattedLabel,
     length: CTX.measureText(formattedLabel).width,
+    text: formattedLabel,
   };
 }
 
@@ -111,4 +111,6 @@ export function getFixedWidth(
 }
 
 export const toPascalCase = (s: string | null | undefined) =>
-s ? s.replace(/(\w)(\w*)/g, (_, p, q) => p.toUpperCase() + q.toLowerCase()) : s;
+  s
+    ? s.replace(/(\w)(\w*)/g, (_, p, q) => p.toUpperCase() + q.toLowerCase())
+    : s;

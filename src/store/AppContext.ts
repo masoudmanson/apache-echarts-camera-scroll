@@ -1,9 +1,13 @@
 import { createContext } from "react";
-import { EChartsInstance } from "echarts-for-react";
+import { EChartsType } from "echarts";
 
 export interface ChartContextValue {
-    chartInstance: EChartsInstance | null;
-    setChartInstance: React.Dispatch<React.SetStateAction<EChartsInstance | null>>;
+  chartInstance: EChartsType | undefined;
+  setChartInstance: React.Dispatch<
+    React.SetStateAction<EChartsType | undefined>
+  >;
 }
 
-export const AppContext = createContext<ChartContextValue | undefined>(undefined);
+export const AppContext = createContext<ChartContextValue | undefined>(
+  undefined
+);
